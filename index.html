@@ -1,0 +1,599 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="keywords" content="Jan Bölsche,Photography" />
+		<link rel="shortcut icon" href="/favicon.ico" />
+		<title>Jan Bölsche - Photography</title>
+
+		<style type="text/css" media="screen,projection">/*<![CDATA[*/ 
+
+			body {
+				background-color:#404040;
+				color:#aaaaaa;
+				font:menu;
+				margin-left:10px;
+			}
+			
+			a {
+				color:#aaaaaa;
+				text-decoration:none;
+			}
+
+			div.page {
+				width:400px;
+				margin-left:40px;
+				font-size:90%;
+			}
+			div.about {
+				font-size:80%;
+			}
+			div.header {
+				height:50px;
+				padding-left:10px;
+				padding-top:10px;
+			}
+
+			div.center-box {
+				border-left: solid 1px white;
+			}
+
+			._700 div.center {
+				height:700px;
+			}
+			._600 div.center {
+				height:600px;
+			}
+			._500 div.center {
+				height:500px;
+			}
+
+			div.nav ul {
+				padding-top:0px;
+				margin-top:4px;
+			}
+			div.nav li {
+				list-style-type:none;
+				cursor:pointer;
+			}
+
+			div.nav li.active {
+				list-style-type:square;
+				color:white;
+				cursor:pointer;
+			}
+
+			div.nav li:hover {
+				list-style-type:circle;
+			}
+
+			div.controls {
+				position:absolute;
+				bottom:0px;
+				left:14%;
+				margin-left:5px;
+				height:16px;
+			}
+
+			div.controls a,  div.controls span {
+				padding-right:5px;
+				padding-left:5px;
+			}
+
+			div.controls a {
+				cursor:pointer;
+			}
+
+			div.controls a:hover {
+				list-style-type:circle;
+				color:white;
+			}
+
+			div.info {
+				position:absolute;
+				bottom:0px;
+				text-align:right;
+				width:14%;
+				text-shadow: black 0.1em 0.1em 0.2em;
+			}
+
+			div.info h1 {
+				font-size:140%;
+			}
+
+			div.info h1,  div.info p {
+				padding-right:10px;
+				padding-bottom:0px;
+				margin-bottom:0px;
+				margin-top:4px;
+			}
+
+			.center img {
+				position: absolute;
+				bottom:20px;
+				left: 14%;
+				padding:0px;
+				margin-left:1px;
+				border-left: solid 1px white;
+			}
+
+			body[class="windows firefox"] img {
+				margin-left:1px;
+			}
+		
+			div.main-box {
+				position: relative;
+				width: 100%;
+				overflow: hidden;
+			}
+			div.center-box {
+				position: relative;
+				width: 100%;
+				left: 14%;
+			}
+			div.reset-box {
+				position: relative;
+				width: 100%;
+				left: 100%;
+				margin-left: -14%;
+			}
+			div.right-box {
+				position: relative;
+				width: 100%;
+				margin-left: -15%;
+				left: -2px;
+			}
+			div.content-box {
+				position: relative;
+				width: 100%;
+				margin-left: -100%;
+				left: 15%;
+			}
+			div.left {
+				float:left;
+				width:14%;
+			}
+			div.right {
+				float: right;
+				width: 15%;
+			}
+			div.center {
+				margin-left: 14%;
+				margin-right: 15%;
+				padding-left: 1px;
+				padding-right: 1px;
+			}
+			* html div.center {
+				height:1%;
+				margin:0;
+			}
+			* html div.left {
+				margin-right:-3px;
+			}
+			* html div.right {
+				margin-left:-3px;
+			}
+			.clearfix:after {
+				content: "."; 
+				display: block;
+				height: 0px;
+				clear: both; 
+				visibility: hidden;
+			}
+			.heightfix:before {
+				content: '.';
+				display: block;
+				visibility: hidden;
+				height: 0;
+			}
+
+		 /*]]>*/</style>
+
+		<script type="text/javascript" src="jquery-1.4.1.min.js"></script>
+	
+		<script>
+			$(function(){
+				var galleries = {
+					'about': ["4333136767_04cc9835e2_m.jpg"],
+					'contact': ["3837750144_cedca76b19_m.jpg"],
+				};
+
+				function processImageURL(url) {
+					url = url.replace("%height%", ""+imageHeight);
+					return "images/"+url;
+				}
+			
+				var preloadTimerId = null;
+				function setImage(galleryName, currIndex) {
+					if (preloadTimerId != null) {							
+						window.clearTimeout(preloadTimerId);
+						preloadTimerId = null;
+					}
+					
+					var images = galleries[galleryName];
+					if (images) {
+						var imageURL = images[currIndex];
+						imageURL = processImageURL(imageURL);
+						var img_old = $("div.center img.old")[0];
+						var img_curr = $("div.center img.current")[0];
+						if (img_old.src != imageURL) {
+							$(img_old).remove();
+							$("div.center").prepend('<img class="old" src="' + imageURL + '"/>');
+							img_old = $("div.center img.old")[0];
+							$(img_old).hide();
+							setImageHandlers();
+							//img_old.src = imageURL;
+						}
+						$(img_curr).fadeOut(500);
+						$(img_old).delay(500).fadeIn(500);
+					
+						if (images.length>1) {
+							// guess next index and preload potential next image
+							// into the then-to-be-invisible img
+							var next = (currIndex+1) % images.length;
+							var imageURL = images[next];
+							imageURL = processImageURL(imageURL);
+							preloadTimerId = window.setTimeout(function() {
+								$(img_curr).attr("src", imageURL);
+							}, 800);
+						}
+
+						$(img_old).removeClass("old");
+						$(img_old).addClass("current");
+						$(img_curr).removeClass("current");
+						$(img_curr).addClass("old");
+					
+						$("div.controls span")[0].innerHTML="" + (currIndex+1) + " of " + images.length;
+
+					} else {
+						$("div.controls span")[0].innerHTML="0 of 0";
+					}
+					$("div.nav li").each(function() {
+						if (this.innerHTML==galleryName) {
+							$(this).addClass("active");
+						} else {
+							$(this).removeClass("active");
+						}
+					});
+
+				}
+			
+				function next(step) {
+						var galleryName = $("div.nav li.active")[0].innerHTML;
+						var currImage = $("div.center img.current")[0].src;
+
+						//currImage = currImage.split("/").pop();					
+						var elements = currImage.split("/");
+						currImage = elements[elements.length-1]; 
+					
+						var images = galleries[galleryName];
+						if (!images) return;
+						currImage = currImage.replace(""+imageHeight+"_", "%height%_");
+
+						var currIndex = jQuery.inArray(currImage, images);
+						var maxIndex = images.length;
+					
+						currIndex = (currIndex+maxIndex+step) % maxIndex;
+						setImage(galleryName, currIndex);
+				}
+			
+				var timerid = null;
+				function slideshow(timeout) {
+					timerid = window.setTimeout(function() {
+		 				next(1);
+						slideshow(timeout);
+					}, timeout);
+				}
+			
+				function startSlideshow() {
+					if (timerid == null) {
+						$("div.controls a")[2].innerHTML = "◾ stop";
+						$("div.controls a")[2].id="pause";
+						slideshow(8000);
+					}
+				}
+			
+				function stopSlideshow() {
+					if (timerid != null) {
+						$("div.controls a")[2].innerHTML = "▸ play";
+						$("div.controls a")[2].id="play";
+						window.clearTimeout(timerid); 
+						timerid = null;
+					}
+				}
+						
+				$("div.nav li").each(function(){				
+					$(this).click(function(){
+						$("div.nav li").removeClass("active");
+						$(this).addClass("active");
+						galleryName = this.innerHTML;
+						stopSlideshow();
+		
+						setImage(galleryName, 0);
+						var images = galleries[galleryName];
+						if (images && images.length>1) {
+							startSlideshow();
+							$("div.controls").show();
+						} else {
+							$("div.controls").hide();
+						}
+					
+						$("div.page").hide();
+						$("div."+galleryName).show();
+					});		
+				});
+
+				function setImageHandlers() {
+					$("div.center img").each(function(){				
+						$(this).click(function(){
+							stopSlideshow();
+							next(1);
+						});
+					});
+				}
+				
+				function deSpamProtect() {
+					$("span.reversed").each(function() {
+						inString = this.innerHTML;
+						outString = "";
+						while(inString) {
+							outString += inString.substr(inString.length-1);
+							inString = inString.substr(0,inString.length-1);
+						}
+						this.innerHTML = outString;
+					});
+				
+					$("span.email").each(function(){
+						this.innerHTML = '<a href="mailto:' + this.innerHTML + '">' + 
+							this.innerHTML +'</a>';
+					});
+				
+					$("span.twitter").each(function(){
+						this.innerHTML = '<a href="http://twitter.com/' + this.innerHTML + 
+						 	'">@' + this.innerHTML +'</a>';
+					});
+				}
+				
+				function fillGalleries() {
+					$("ul.galleries>li").each(function(){
+						var key = $(this).find("h1")[0].innerHTML;
+						$(this).find("a").each(function(){
+							var elements = $(this).attr("href").split("/");
+							var filename = elements[elements.length-1]; 
+							filename = filename.replace("480_", "%height%_");
+							if (galleries[key]==null) {
+								galleries[key] = [];
+							}
+							galleries[key][galleries[key].length] = filename;
+						});
+					});
+					$("ul.galleries").remove();
+				}
+
+				// handlers for transport control links
+				$("div.controls a").each(function(){				
+					$(this).click(function(){
+						var transport = this.id;
+					
+						switch (transport) {
+							case 'next': 
+								stopSlideshow();
+								next(1);
+								break;
+							
+							case 'prev': 
+								stopSlideshow();
+								next(-1);
+								break;
+							
+							case "pause":
+								stopSlideshow();
+								break;
+						
+							case "play":
+								next(1);
+								startSlideshow();
+								break;
+						}	
+					})
+				});
+
+				// browser detection for CSS
+				var agent_identifier = "windows macintosh chrome firefox safari opera".split(" ");
+				for(i=0; i<agent_identifier.length; ++i) {
+					if (navigator.userAgent.toLowerCase().indexOf(agent_identifier[i]) > -1) {
+						$("body").addClass(agent_identifier[i]);	
+					}
+				}
+			
+				// determine best image size of user's screen resolution
+				var imageHeight = 0;
+				if (screen.availHeight > 900) {
+					$("body").addClass("_700");
+					imageHeight = 680;
+				} else if (screen.availHeight > 800) {
+					$("body").addClass("_600");
+					imageHeight = 580;
+				} else {
+					$("body").addClass("_500");
+					imageHeight = 480;
+				}					
+				// initialize
+				fillGalleries();
+				setImageHandlers();
+				deSpamProtect();
+				
+				$("div.page").hide();
+				$("div.center img").hide();
+				
+				setImage("Urban Concrete", 0);
+				startSlideshow();
+			});
+		</script>
+	</head>
+	<body>
+		<div class="header">
+		</div>
+		<div class="main-box">
+			<div class="center-box">
+				<div class="reset-box">
+					<div class="right-box">
+						<div class="content-box clearfix">
+							<div class="left">
+								<div class="nav">
+									<ul>
+										<li>Urban Concrete</li>
+										<li>The Decisive Moment</li>
+										<li>Action</li>
+										<li>Portrait</li>
+										<li>Nature</li>
+									</ul>
+									<ul>
+										<li>Decay</li>
+										<li>330cm</li>
+										<li>Kreuzberg</li>
+									</ul>
+									<ul>
+										<li>about</li>
+										<li>contact</li>
+									</ul>
+								</div>
+								<div class="info">
+									<h1>Jan Bölsche</h1>
+									<p>PHOTOGRAPHY</p>
+								</div> <!-- nav -->
+							</div> <!-- left -->
+							<div class="right">
+							</div>
+						     <div class="center heightfix">
+								<img class="current"/>
+								<img class="old"/>
+								<div class="about page">
+									Jan Bölsche, born 1973, works as photographer and author in Berlin, Germany. His photos have been published in newspapers, magazines, travel guides, catalogs and on websites and CD covers. He specializes in capturing the Decisive Moment. Jan is “in-official member” (Inoffizieller Mitarbeiter) of Zentrale Intelligenz Agentur (ZIA).<br/>
+									<br/>
+Controlled by a defect gene, the cells of Jan Bölsche's retina started to slowly fade away in his early adolescence. In an still ongoing process, a growing blurry and nebulous spot in the center of his field of vision covers objects he tries to bring into focus. This medical condition is called "Stargardt's disease" or Juvenile Macula Degeneration (JMD). Since photoreceptors for the different base colors are not affected evenly, the sensation of color is quite different from what the rest of us sees.
+Due to the lack of high definition input, Jan's visual cortex concentrates more on the 'big picture', the coarse composition rather than on fine detail.
+Or as he puts it: "My eyes work more like a film camera from the 1930ies than like my digital SLR. Sometimes I am actually surprised with what it captured."
+<br/><br/>
+									All photos &#x00a9; 2000-2010 by Jan Bölsche. All rights reserved.
+								</div>
+								<div class="contact page">
+									Please feel free to contact me for photo licensing, prints, shootings or whatever questions you might have.<br/>
+									<br/>
+									<span class="reversed phone">604 12 104 151 94+</span><br/>
+									<span class="reversed phone">17 06 88 02 03 94+</span><br/>
+									<span class="reversed email">moc.liamelgoog@selaznog.raluger</span><br/>
+									<br/>
+									twitter: <span class="reversed twitter">selaznograluger</span><br/>
+									skype: <span class="reversed skype">krowraluger</span>
+								</div>
+								<div class="controls">
+									<span>1 of 1</span>|<a id="prev">← prev</a>|<a id="next">next → </a>|<a id="pause">◾ stop</a>
+								</div>
+							</div> <!-- center -->
+						</div> <!-- content box -->
+					</div> <!-- right box -->
+				</div> <!-- reset box -->
+			</div> <!-- center box -->
+		</div> <!-- main box -->
+		<ul class="galleries">
+			<li><h1>Nature</h1>
+				<ul>
+					<li><a href="images/480_DSC01395.jpg">image</a></li>
+					<li><a href="images/480_DSC05244.jpg">image</a></li>
+					<li><a href="images/480_DSC05043.jpg">image</a></li>
+					<li><a href="images/480_spider_III.jpg">image</a></li>
+					<li><a href="images/480_DSC05773.jpg">image</a></li>
+					<li><a href="images/480_road_to_krka.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>Urban Concrete</h1>
+				<ul>
+					<li><a href="images/480_DSC06500.jpg">image</a></li>
+					<li><a href="images/480_DSC09253.jpg">image</a></li>
+					<li><a href="images/480_DSC02423.jpg">image</a></li>
+					<li><a href="images/480_DSC04201.jpg">image</a></li>
+					<li><a href="images/480_DSC00990.jpg">image</a></li>
+					<li><a href="images/480_DSC06458.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>Decay</h1>
+				<ul>
+					<li><a href="images/480_DSC07544.jpg">image</a></li>
+					<li><a href="images/480_a_taste_of_russia.jpg">image</a></li> 
+					<li><a href="images/480_cleaning_up.jpg">image</a></li>
+					<li><a href="images/480_DSC03992.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>Kreuzberg</h1>
+				<ul>
+					<li><a href="images/480_sushi_with_gryhound.jpg">image</a></li>
+					<li><a href="images/480_a_thousand_words.jpg">image</a></li>
+					<li><a href="images/480_DSC00723.jpg">image</a></li>
+					<li><a href="images/480_DSC09161.jpg">image</a></li>
+					<li><a href="images/480_DSC07191.jpg">image</a></li>
+					<li><a href="images/480_DSC02669.jpg">image</a></li>
+					<li><a href="images/480_DSC07242.jpg">image</a></li>
+					<li><a href="images/480_DSC08853.jpg">image</a></li>
+					<li><a href="images/480_DSC08451.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>Portrait</h1>
+				<ul>
+					<li><a href="images/_480_IMG_4879.jpg">image</a></li>
+					<li><a href="images/480_ZIA_009.jpg">image</a></li>
+					<li><a href="images/480_DSC04534.jpg">image</a></li>
+					<li><a href="images/480_DSC04965-Edit.jpg">image</a></li>
+					<li><a href="images/480_DSC05950.jpg">image</a></li>
+					<li><a href="images/480_DSC01537.jpg">image</a></li>
+					<li><a href="images/480_DSC02285.jpg">image</a></li>
+					<li><a href="images/480_DSC04558.jpg">image</a></li>
+					<li><a href="images/480_DSC03909.jpg">image</a></li>
+					<li><a href="images/480_DSC00638-Edit.jpg">image</a></li>
+					<li><a href="images/480_DSC09699-Edit.jpg">image</a></li>
+					<li><a href="images/480_DSC03618.jpg">image</a></li>
+					<li><a href="images/480_DSC00985.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>Action</h1>
+				<ul>
+					<li><a href="images/480_DSC04682.jpg">image</a></li>
+					<li><a href="images/480_DSC08778-Edit.jpg">image</a></li>
+					<li><a href="images/480_DSC03410.jpg">image</a></li>
+					<li><a href="images/480_DSC05822.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>The Decisive Moment</h1>
+				<ul>
+					<li><a href="images/480_bvg.jpg">image</a></li>
+					<li><a href="images/480_DSC00661.jpg">image</a></li>
+					<li><a href="images/480_waffenladen.jpg">image</a></li>
+					<li><a href="images/480_its_not_easy_being_green.jpg">image</a></li>
+					<li><a href="images/480_DSC01308.jpg">image</a></li>
+					<li><a href="images/480_no_title.jpg">image</a></li>
+					<li><a href="images/480_DSC07747.jpg">image</a></li>
+					<li><a href="images/480_eis.jpg">image</a></li>
+					<li><a href="images/480_shooting_at_memorial.jpg">image</a></li>
+				</ul>
+			</li>
+			<li><h1>330cm</h1>
+				<ul>
+					<li><a href="images/480_DSC01726.jpg">image</a></li>
+					<li><a href="images/480_DSC01724.jpg">image</a></li>
+					<li><a href="images/480_DSC01686.jpg">image</a></li>
+					<li><a href="images/480_DSC01754.jpg">image</a></li>
+					<li><a href="images/480_DSC01758.jpg">image</a></li>
+					<li><a href="images/480_DSC01636.jpg">image</a></li>
+					<li><a href="images/480_DSC01732.jpg">image</a></li>
+					<li><a href="images/480_DSC01706.jpg">image</a></li>
+					<li><a href="images/480_DSC01736.jpg">image</a></li>
+					<li><a href="images/480_DSC01695.jpg">image</a></li>
+					<li><a href="images/480_DSC01649.jpg">image</a></li>
+					<li><a href="images/480_DSC01691.jpg">image</a></li>
+				</ul>
+			</li>
+		</ul>
+	</body>
+</html>
+
